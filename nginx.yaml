@@ -1,0 +1,35 @@
+---
+- hosts: gcp_instances
+  gather_facts: false
+  become: true
+
+  tasks:
+    - name: Criar instância GCP
+      gcp_compute_instance:
+        name: minha-instancia
+        machine_type: n1-standard-1
+        zone: us-central1-a
+        project: meu-projeto
+        auth_kind: serviceaccount
+        service_account_file: /path/para/chave.json
+        image_family: ubuntu-2004-lts
+        image_project: ubuntu-os-cloud
+        state: present
+
+    - name: Instalar Nginx
+      apt:
+        name: nginx
+        state: present
+
+    - name: Configurar arquivo index.html
+      copy:
+        content: "<html><body><h1>Bem-vindo ao servidor web!</h1></body></html>"
+        dest: /var/www/html/index.html
+        owner: www-data
+        group: www-data
+        mode: '0644'
+
+    - name: Reiniciar Nginx
+      service:
+        name: nginx
+       
